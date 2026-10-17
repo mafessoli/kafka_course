@@ -1,0 +1,11 @@
+{
+  "name": "kafka_course",
+  "version": "1.0.0",
+  "description": "exemples of kafka course",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
