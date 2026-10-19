@@ -47,3 +47,5 @@ console.log("Sending message...");
 await runProducer(input);
 
 console.log("Producer finished. Keeping consumer alive...");
+
+// todo: create multiple groups and test if messages can be viwed in boths
