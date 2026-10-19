@@ -1,14 +1,14 @@
 import PromptSync from 'prompt-sync';
-import { Kafka } from 'kafkajs';
+import { Kafka, Partitioners } from 'kafkajs';
 
-console.log("== Kafka Producer ==");
+console.log("== Kafka Producer & Consumer ==");
 
 const kafka = new Kafka({
     clientId: 'my-app',
-    brokers: ['localhost:9092']
+    brokers: ['127.0.0.1:9092']
 });
 
-const producer = kafka.producer();
+const producer = kafka.producer({ createPartitioner: Partitioners.LegacyPartitioner});
 const consumer = kafka.consumer({ groupId: 'test-group' });
 const topicName = 'message-by-prompt';
 
@@ -18,26 +18,32 @@ const runProducer = async (message) => {
         topic: topicName,
         messages: [{value: message }]
     });
+    console.log("Message send successfully!");
     await producer.disconnect();
 };
 
-await consumer.connect();
-await consumer.subscribe({topic: topicName, fromBeginning: true});
+const runConsumer = async () => {
+    await consumer.connect();
+    await consumer.subscribe({ topic: topicName, fromBeginning: true});
 
-await consumer.run({
+    await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
+        console.log("New Message Received");
         console.log({
             topic,
+            partition,
             offset: message.offset,
             value: message.value.toString()
-        })
-    }
-});
+        });
+    }});
+};
 
-const prompt = PromptSync({ sigint: true });
-const input = prompt('Write your Message: ');
+await runConsumer();
 
-console.log("Sending message")
+const prompt = PromptSync({sigint: true});
+const input = prompt('Write your message: ');
+
+console.log("Sending message...");
 await runProducer(input);
 
-console.log("End producer...");
+console.log("Producer finished. Keeping consumer alive...");
